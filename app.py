@@ -1,7 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
-load_dotenv() # Activate the Local Vars...
-#from langchain_google_genai import PromptTemplate, LLMChain
+load_dotenv()
 import google.generativeai as genai
 import os
 import pandas as pd
@@ -9,60 +8,106 @@ import pandas as pd
 # Configure the api_key
 genai.configure(api_key = os.getenv('Google_API_Key'))
 
-# Streamlit Page
-st.header("👨‍⚕️ Healthcare :blue[Advisor] ⚕️", divider = "green")
-input = st.text_input('''Hi! I am your medical expert 💊.
-                      Ask me information about Health, Diseases & Fitness Only''')
+# Streamlit Page Styling
+st.set_page_config(page_title="Healthcare Advisor", page_icon="⚕️", layout="wide")
 
-submit = st.button("Submit")
+# Custom CSS for extra styling
+st.markdown("""
+    <style>
+    .big-font {
+        font-size:24px !important;
+        color: #1f77b4;
+    }
+    .bmi-box {
+        background-color: #f0f9f9;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    .bmi-status {
+        padding: 5px 10px;
+        border-radius: 8px;
+        color: white;
+        display: inline-block;
+    }
+    .underweight { background: #ff9800; }
+    .normal { background: #4caf50; }
+    .overweight { background: #ff5722; }
+    .obese { background: #f44336; }
+    </style>
+""", unsafe_allow_html=True)
 
-# BMI Calculator
-st.sidebar.subheader("BMI Calculator ✍️")
-weight = st.sidebar.text_input("Weight (in kgs): ")
-height = st.sidebar.text_input("Height (in cms): ")
+# Header
+st.header("👨‍⚕️ Healthcare :blue[Advisor] ⚕️", divider="green")
+st.markdown("#### 🤖 *Your AI-powered assistant for health, fitness & wellness!*")
 
-# Calculate the BMI
-weight = pd.to_numeric(weight)
-height = pd.to_numeric(height)
-height_mts = height/100
-bmi = weight/(height_mts**2)
+# Layout: Split page into 2 columns
+col1, col2 = st.columns([2, 1])
 
-# Scale of the BMI
-notes = f'''The BMI value can be interpreted as:
-* Underweight: BMI<18.5
-* Normal Weight: BMI 18.5 - 24.9
-* Overweight: BMI 25 - 29.9
-* Obese: BMI > 30'''
+with col1:
+    input = st.text_input('💬 **Ask me about health, diseases or fitness tips:**', placeholder="e.g., How can I boost my immune system?")
+    submit = st.button("🔍 Get Advice")
 
-if bmi:
-    st.sidebar.markdown("The BMI is: ")
-    st.sidebar.write(bmi)
-    st.sidebar.write(notes)
+    if submit and input:
+        with st.spinner("Generating response..."):
+            def get_response(text_input):
+                model = genai.GenerativeModel("gemini-1.5-pro")
+                myprompt = '''I want you to act as a Dietician and Healthcare Expert
+                and answer questions related to Health, Diseases & Fitness only. If asked about medications, reply with:
+                "Please reach out to your Doctor for Medication." Non-health topics should be declined politely. Here's the question: '''
+                response = model.generate_content(myprompt + text_input)
+                return response.text
 
-# Generative AI Application
-def get_response(text_input):
-    model = genai.GenerativeModel("gemini-1.5-pro")
-    if text_input!="":
-        myprompt = '''I want you to acts as a Dietician and Healthcare Expert
-and answer the questions on Health & Related Topics Only. If the User is asking information/
-prompting on the topics other than Health, just pass the Message - "I am a Healthcare Chatbot
-and can answer questions related to Health , Diseases & Fitness Only". Please note if someone asks for
-medicines or medicines name, just pass the message -  "Please reach out to your Doctor for Medication."
-So, here is the Question...'''
-        response = model.generate_content(myprompt+text_input)
-        return(response.text)
-    else:
-        st.write("Please Enter the Prompt!!")
-        
-if submit:
-    response = get_response(input)
-    st.subheader("The :orange[Response] is: ")
-    st.write(response)
-    
-# Disclaimer
-st.subheader("Disclaimer: ", divider = True)
-notes = f'''
-1. This is an AI Advisor and should not be construed as a Medical Advise.
-2. Before taking any action, it is recommended to consult a Medical Practitioner.'''
+            response = get_response(input)
+            st.success("🩺 Here's my advice:")
+            st.markdown(response)
 
-st.markdown(notes)
+with col2:
+    st.subheader("🧮 BMI Calculator")
+    with st.form("bmi_form"):
+        weight = st.text_input("⚖️ Weight (in kgs)", placeholder="e.g., 70")
+        height = st.text_input("📏 Height (in cms)", placeholder="e.g., 175")
+        calc_btn = st.form_submit_button("📊 Calculate BMI")
+
+    if calc_btn and weight and height:
+        weight = pd.to_numeric(weight, errors="coerce")
+        height = pd.to_numeric(height, errors="coerce")
+        if pd.notnull(weight) and pd.notnull(height) and height > 0:
+            height_mts = height / 100
+            bmi = round(weight / (height_mts ** 2), 2)
+
+            # Interpret BMI
+            if bmi < 18.5:
+                status = "Underweight"
+                css_class = "underweight"
+            elif 18.5 <= bmi < 25:
+                status = "Normal"
+                css_class = "normal"
+            elif 25 <= bmi < 30:
+                status = "Overweight"
+                css_class = "overweight"
+            else:
+                status = "Obese"
+                css_class = "obese"
+
+            st.markdown(f"""
+                <div class="bmi-box">
+                    <p class="big-font">Your BMI is: <strong>{bmi}</strong></p>
+                    <p>Status: <span class="bmi-status {css_class}">{status}</span></p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown("""
+                **Interpretation Guide:**  
+                - *Underweight:* BMI < 18.5  
+                - *Normal:* BMI 18.5 - 24.9  
+                - *Overweight:* BMI 25 - 29.9  
+                - *Obese:* BMI ≥ 30
+            """)
+
+# Divider & Disclaimer
+st.markdown("---")
+st.subheader("⚠️ Disclaimer")
+st.info('''
+1. This AI tool is for educational and advisory purposes only.
+2. Always consult a licensed medical professional before making health decisions.
+''')
