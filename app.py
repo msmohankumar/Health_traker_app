@@ -1,55 +1,68 @@
-from flask import Flask, render_template, request
-import ollama
+import streamlit as st
+from dotenv import load_dotenv
+load_dotenv() # Activate the Local Vars...
+#from langchain_google_genai import PromptTemplate, LLMChain
+import google.generativeai as genai
+import os
+import pandas as pd
 
-app = Flask(__name__)
+# Configure the api_key
+genai.configure(api_key = os.getenv('Google_API_Key'))
 
-def get_response(query):
-    prompt = '''
-You are a certified Dietician and Healthcare Expert. Answer ONLY health-related questions such as fitness, diseases, nutrition, and well-being.
+# Streamlit Page
+st.header("👨‍⚕️ Healthcare :blue[Advisor] ⚕️", divider = "green")
+input = st.text_input('''Hi! I am your medical expert 💊.
+                      Ask me information about Health, Diseases & Fitness Only''')
 
-Rules:
-- If asked about non-health topics, reply: "I am a Healthcare Assistant and can answer health-related questions only."
-- If asked for medicine names or prescriptions, reply: "Please consult your doctor for medication advice."
+submit = st.button("Submit")
 
-User Query:
-'''
-    response = ollama.chat(
-        model="llama3",
-        messages=[
-            {"role": "system", "content": "You are a helpful healthcare expert."},
-            {"role": "user", "content": prompt + query}
-        ]
-    )
-    return response['message']['content']
+# BMI Calculator
+st.sidebar.subheader("BMI Calculator ✍️")
+weight = st.sidebar.text_input("Weight (in kgs): ")
+height = st.sidebar.text_input("Height (in cms): ")
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    result = ""
-    bmi_result = ""
-    if request.method == 'POST':
-        if 'query' in request.form:
-            query = request.form.get('query')
-            if query.strip():
-                result = get_response(query)
-        if 'weight' in request.form and 'height' in request.form:
-            try:
-                weight = float(request.form.get('weight'))
-                height = float(request.form.get('height'))
-                height_m = height / 100
-                bmi = weight / (height_m ** 2)
-                bmi_result = f"BMI: {bmi:.2f} - "
-                if bmi < 18.5:
-                    bmi_result += "Underweight"
-                elif 18.5 <= bmi < 24.9:
-                    bmi_result += "Normal weight"
-                elif 25 <= bmi < 29.9:
-                    bmi_result += "Overweight"
-                else:
-                    bmi_result += "Obese"
-            except ValueError:
-                bmi_result = "Please enter valid numbers for weight and height."
+# Calculate the BMI
+weight = pd.to_numeric(weight)
+height = pd.to_numeric(height)
+height_mts = height/100
+bmi = weight/(height_mts**2)
+
+# Scale of the BMI
+notes = f'''The BMI value can be interpreted as:
+* Underweight: BMI<18.5
+* Normal Weight: BMI 18.5 - 24.9
+* Overweight: BMI 25 - 29.9
+* Obese: BMI > 30'''
+
+if bmi:
+    st.sidebar.markdown("The BMI is: ")
+    st.sidebar.write(bmi)
+    st.sidebar.write(notes)
+
+# Generative AI Application
+def get_response(text_input):
+    model = genai.GenerativeModel("gemini-1.5-pro")
+    if text_input!="":
+        myprompt = '''I want you to acts as a Dietician and Healthcare Expert
+and answer the questions on Health & Related Topics Only. If the User is asking information/
+prompting on the topics other than Health, just pass the Message - "I am a Healthcare Chatbot
+and can answer questions related to Health , Diseases & Fitness Only". Please note if someone asks for
+medicines or medicines name, just pass the message -  "Please reach out to your Doctor for Medication."
+So, here is the Question...'''
+        response = model.generate_content(myprompt+text_input)
+        return(response.text)
+    else:
+        st.write("Please Enter the Prompt!!")
+        
+if submit:
+    response = get_response(input)
+    st.subheader("The :orange[Response] is: ")
+    st.write(response)
     
-    return render_template('index.html', result=result, bmi_result=bmi_result)
+# Disclaimer
+st.subheader("Disclaimer: ", divider = True)
+notes = f'''
+1. This is an AI Advisor and should not be construed as a Medical Advise.
+2. Before taking any action, it is recommended to consult a Medical Practitioner.'''
 
-if __name__ == '__main__':
-    app.run(debug=True)
+st.markdown(notes)
