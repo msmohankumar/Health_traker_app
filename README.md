@@ -15,7 +15,7 @@ The application is deployed using **Streamlit Cloud** and is accessible via the 
 🔗 **[Open Health Tracker App](https://healthtrakerapp-ww6akhqjahwubd3gximuoy.streamlit.app/)**
 
 ## Screenshots
-(Add images of the app here)
+![App Screenshot](Health%20Tracker%20App/screenshot.png)
 
 ## Installation
 To run the application locally, follow these steps:
