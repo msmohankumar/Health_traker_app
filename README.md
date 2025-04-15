@@ -1,60 +1,58 @@
-# Health Tracker App
+# ⚕️ Healthcare Advisor
 
-## Overview
-The **Health Tracker App** is a Streamlit-based web application that helps users monitor and manage their health-related data efficiently. This application provides an interactive and user-friendly interface for tracking key health metrics and gaining insights into overall well-being.
+A powerful and interactive **Streamlit app** that serves as your personal **AI-powered health, wellness & fitness advisor**, combined with a **BMI calculator**.  
+Ask health-related questions and get smart, friendly advice – all in a beautifully designed UI.
 
-## Features
-- User-friendly dashboard for visualizing health data
-- Secure data storage and retrieval
-- Interactive charts and graphs
-- Intuitive UI powered by Streamlit
-
-## Deployment
-The application is deployed using **Streamlit Cloud** and is accessible via the following link:
-
-🔗 **[Open Health Tracker App](https://healthtrakerapp-ww6akhqjahwubd3gximuoy.streamlit.app/)**
-
-## Screenshots
-![App Screenshot](https://github.com/msmohankumar/Health_traker_app/blob/9dee761f213471cd692d5602ba6e66bc0863b42f/Health%20tracker%20app.png)
-
-## Installation
-To run the application locally, follow these steps:
-
-1. Clone this repository:
-   ```sh
-   git clone https://github.com/your-username/HealthTrackerApp.git
-   cd HealthTrackerApp
-   ```
-2. Create a virtual environment (optional but recommended):
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-3. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
-4. Run the application:
-   ```sh
-   streamlit run app.py
-   ```
-
-## Technologies Used
-- **Python**
-- **Streamlit**
-- **Pandas** (for data manipulation)
-- **Matplotlib & Seaborn** (for data visualization)
-
-## Contributing
-Contributions are welcome! If you'd like to contribute, please fork the repository and submit a pull request.
-
-## License
-This project is licensed under the MIT License.
-
-## Contact
-For any queries or feedback, feel free to reach out or open an issue in the repository.
+🔗 **Live App**: [Click here to try it out!](https://your-deployed-app-link.streamlit.app)
 
 ---
 
-Enjoy using the **Health Tracker App** and take control of your health!
+## 🚀 Features
 
+- 🤖 Ask health, disease & fitness questions using Gemini AI
+- ⚖️ BMI Calculator with dynamic feedback and color-coded health status
+- 🧠 Friendly and informative AI responses (no medication advice)
+- 🎨 Clean and modern user interface
+- 💻 Built with **Python**, **Streamlit**, and **Google Generative AI (Gemini)**
+
+---
+
+## 📸 Preview
+
+> *Add a screenshot or GIF here once deployed to showcase the app*
+
+---
+
+## 🧠 How It Works
+
+### 🤖 Healthcare Q&A
+- Ask any question related to **health, diseases, or fitness**.
+- The app uses **Google Gemini** AI to provide helpful responses.
+- It refuses to answer non-health topics and redirects medical advice to professionals.
+
+### ⚖️ BMI Calculator
+- Enter your **weight (kg)** and **height (cm)**.
+- The app calculates your **BMI** and displays your **health status**:
+  - 🟠 Underweight  
+  - 🟢 Normal  
+  - 🟤 Overweight  
+  - 🔴 Obese
+
+---
+
+## 🛠 Tech Stack
+
+- **Python**
+- **Streamlit**
+- **Google Generative AI (Gemini)**
+- **dotenv** for secure API key management
+- **Pandas** for numerical calculations
+
+---
+
+## 🧑‍💻 How to Run Locally
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/healthcare-advisor.git
+cd healthcare-advisor
